@@ -5,16 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -62,8 +66,10 @@ fun TipTimeScreem(){
 
     // for tip percentage
     var tipInput by remember { mutableStateOf("") }
-    var tipPercent = tipInput.toDoubleOrNull()?: 15.0
+    val tipPercent = tipInput.toDoubleOrNull()?: 15.0
     val tip = calculateTip(amount, tipPercent)
+
+    var roundUp by remember { mutableStateOf(false)}
 
     val focusManager = LocalFocusManager.current
 
@@ -98,10 +104,12 @@ fun TipTimeScreem(){
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
-                onNext = { focusManager.clearFocus() }
+                onDone  = { focusManager.clearFocus() }
             )
 
         )
+        RoundTheTipRow(roundUp = roundUp, onRoundUpChanged = {roundUp = it})
+
         Spacer(
             modifier = Modifier.height(24.dp)
         )
@@ -133,7 +141,35 @@ fun EditNumberField(value: String, onValueChange: (String) -> Unit, label: Int, 
 
 }
 
+@Composable
+fun RoundTheTipRow(
+    roundUp: Boolean,
+    onRoundUpChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
 
+        ) {
+        Text(
+            text = stringResource(id = R.string.round_up_tip),
+            modifier = Modifier
+        )
+        Switch(
+            modifier = modifier
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.End
+                ),
+            checked = roundUp,
+            onCheckedChange = onRoundUpChanged,
+        )
+
+    }
+}
 
 private fun calculateTip(amount: Double, tipPercent: Double): String {
     val tip = tipPercent / 100 * amount
